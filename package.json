@@ -1,0 +1,13 @@
+{
+    "name": "kyoto.js",
+    "version": "0.0.1",
+    "main": "kyoto.js",
+    "devDependencies": {
+        "mocha": "git://github.com/visionmedia/mocha.git#1.6.0",
+        "should": "git://github.com/visionmedia/should.js.git#1.2.1"
+    },
+    "scripts": {
+        "scripts": {"preinstall": "git submodule update -i -r"},
+        "test": "mocha -R spec"
+    }
+}

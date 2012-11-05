@@ -15,8 +15,6 @@ agent = new http.Agent({maxSockets:1});
 
 function response(res, cb)
 {
-	console.log('RESPONSE',res.statusCode,res.headers);
-
 	switch(res.statusCode)
 	{
 	case 200:
@@ -181,7 +179,7 @@ API.prototype.sendKeyValueXt = function(cmd, key, val, xt, cb)
 	var args = {key: key, value: val};
 	if(typeof xt == 'function') cb = xt;
 	else args['xt'] = xt;
-	this.kyoto.rpc(cmd, args, this.useOpts(), null cb);
+	this.kyoto.rpc(cmd, args, this.useOpts(), null, cb);
 };
 
 API.prototype.sendKeyNumOrigXt = function(cmd, key, num, orig, xt, cb)
@@ -261,23 +259,6 @@ API.prototype.tune_replication = function(o,cb){
 	this.kyoto.rpc('tune_replication', o, null, null, cb);};
 
 // }}}
-
-var k = new API();
-
-var util = require('util');
-
-k.DB(0);
-
-require('async').parallel([
-	function(series){
-		k.get('japan',series);
-	},
-	function(series){
-		k.increment('foo',0,series);
-	}
-],function(err,res,arb){
-	console.log(util.inspect(arguments,false,3,true));
-});
 
 module.exports = {
 	Kyoto: Kyoto,
