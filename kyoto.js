@@ -195,12 +195,19 @@ API.prototype.receiveKeyXt = function(cb, err, res)
 {
 	if(err) return cb(err);
 	cb(null, res.value, res.xt||null);
-}
+};
+
+API.prototype.receiveVoid = function(cb, err)
+{
+	if(err) return cb(err);
+	cb(null);
+};
 
 // }}}
 // {{{ --commands
 
-API.prototype.add = function(k,v,x,cb){this.sendKeyValueXt.call(this,'add',k,v,x,null,cb);};
+API.prototype.add = function(k,v,x,cb){
+	this.sendKeyValueXt.call(this, 'add', k, v, x, null, this.receiveVoid.bind(this,cb)); };
 
 API.prototype.append = function(k,v,x,cb){this.sendKeyValueXt.call(this,'append',k,v,x,null,cb);};
 
@@ -240,7 +247,7 @@ API.prototype.set = function(k,v,x,cb){
 	this.sendKeyValueXt.call(this, 'set', k, v, x, cb); };
 
 API.prototype.void = function(cb){
-	this.kyoto.rpc('void', null, null, null, cb); };
+	this.kyoto.rpc('void', null, null, null, this.receiveVoid.bind(this,cb)); };
 
 API.prototype.play_script = function(n,a,cb){
 	this.kyoto.rpc('play_script', {name:n}, null, a, function(e,r,a){
