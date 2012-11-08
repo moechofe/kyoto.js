@@ -135,6 +135,7 @@ var Kyoto = function Kyoto(port, host)
 // {{{ rpc
 
 Kyoto.prototype.rpc = function(cmd, params, opts, arbitrary, cb) {
+    console.log(arguments);
 	request(this.host, this.port, 'POST', '/rpc/'+cmd, params, opts, arbitrary, cb);
 	return this;
 }
@@ -147,7 +148,7 @@ var API = function API(port, host, db)
 {
 	this.kyoto = new Kyoto(port, host);
 	this.opts = {
-		DB: db,
+		DB: db || null,
 		CUR: null,
 		WAITER: null,
 		WAITTIME: null,
@@ -157,7 +158,7 @@ var API = function API(port, host, db)
 };
 
 // }}}
-// {{{ cleanOpts, DB, useOpts, sendKeyValueXt, sendKeyNumOrigXt
+// {{{ cleanOpts, DB, useOpts, sendKeyValueXt, sendKeyNumOrigXt, receiveKeyXt, receiveVoid
 
 API.prototype.cleanOpts = function()
 {
@@ -257,13 +258,18 @@ API.prototype.seize = function(k,cb){
 	this.kyoto.rpc('seize', {key:k}, this.useOpts(), null, this.receiveKeyXt.bind(this,cb)); };
 
 API.prototype.status = function(cb){
-	this.kyoto.rpc('status', null, this.useOpts(), null, cb); };
+	this.kyoto.rpc('status', null, this.useOpts(), null, function(err, data){
+      if(err) return cb(err);
+
+        console.log(data);
+      cb(null, data.count, data.size, data);
+    }); };
 
 API.prototype.synchronize = function(o,cb){
 	this.kyoto.rpc('synchronize', o, this.useOpts(), null, cb); }
 
 API.prototype.tune_replication = function(o,cb){
-	this.kyoto.rpc('tune_replication', o, null, null, cb);};
+	this.kyoto.rpc('tune_replication', o, null, null, this.receiveVoid.bind(this,cb));};
 
 // }}}
 
