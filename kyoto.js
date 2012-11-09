@@ -135,7 +135,6 @@ var Kyoto = function Kyoto(port, host)
 // {{{ rpc
 
 Kyoto.prototype.rpc = function(cmd, params, opts, arbitrary, cb) {
-    console.log(arguments);
 	request(this.host, this.port, 'POST', '/rpc/'+cmd, params, opts, arbitrary, cb);
 	return this;
 }
@@ -221,7 +220,7 @@ API.prototype.cas = function(k,o,n,x,cb){
 	this.kyoto.rpc('cas', args, this.useOpts(), null, cb); };
 
 API.prototype.clear = function(cb){
-	this.kyoto.rpc('clear', null, this.useOpts(), null, cb); };
+	this.kyoto.rpc('clear', null, this.useOpts(), null, this.receiveVoid.bind(this,cb)); };
 
 API.prototype.echo = function(o,cb){
 	this.kyoto.rpc('echo', o, null, null, cb); };
@@ -260,10 +259,7 @@ API.prototype.seize = function(k,cb){
 API.prototype.status = function(cb){
 	this.kyoto.rpc('status', null, this.useOpts(), null, function(err, data){
       if(err) return cb(err);
-
-        console.log(data);
-      cb(null, data.count, data.size, data);
-    }); };
+      cb(null, data.count, data.size, data); }); };
 
 API.prototype.synchronize = function(o,cb){
 	this.kyoto.rpc('synchronize', o, this.useOpts(), null, cb); }

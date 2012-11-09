@@ -2,7 +2,7 @@ var should = require('should');
 var kyoto = require('../kyoto.js');
 
 describe('API', function(){
-/*
+
 	describe('add', function(){
       var k = new kyoto.API;
       it('should return void',function(done){
@@ -13,6 +13,17 @@ describe('API', function(){
         });
       });
 	});
+
+    describe('clear', function(){
+        var k = new kyoto.API;
+        it('should return void',function(done){
+            k.clear(function(err){
+                if(err) throw err;
+                arguments.should.not.have.property(1);
+                done();
+            });
+        });
+    });
 
     describe('play_script', function(){
       var k = new kyoto.API;
@@ -34,14 +45,14 @@ describe('API', function(){
          });
        });
     });
-*/
+
     describe('status',function(){
         var k = new kyoto.API;
         it('should return count and size',function(done){
           k.status(function(err){
             if(err) throw err;
-            arguments[1].should.be.a('number');
-            arguments[2].should.be.a('number');
+            arguments[1].should.be.a('string');
+            arguments[2].should.be.a('string');
             if(arguments.hasOwnProperty(3)) arguments[3].should.be.a('object');
             done();
           });
