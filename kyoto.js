@@ -15,8 +15,6 @@ agent = new http.Agent({maxSockets:1});
 
 function response(res, cb)
 {
-	console.log('RESPONSE',res.statusCode,res.headers);
-
 	switch(res.statusCode)
 	{
 	case 200:
@@ -149,7 +147,7 @@ var API = function API(port, host, db)
 {
 	this.kyoto = new Kyoto(port, host);
 	this.opts = {
-		DB: db,
+		DB: db || null,
 		CUR: null,
 		WAITER: null,
 		WAITTIME: null,
@@ -159,7 +157,7 @@ var API = function API(port, host, db)
 };
 
 // }}}
-// {{{ cleanOpts, DB, useOpts, sendKeyValueXt, sendKeyNumOrigXt
+// {{{ cleanOpts, DB, useOpts, sendKeyValueXt, sendKeyNumOrigXt, receiveKeyXt, receiveVoid
 
 API.prototype.cleanOpts = function()
 {
@@ -181,7 +179,7 @@ API.prototype.sendKeyValueXt = function(cmd, key, val, xt, cb)
 	var args = {key: key, value: val};
 	if(typeof xt == 'function') cb = xt;
 	else args['xt'] = xt;
-	this.kyoto.rpc(cmd, args, this.useOpts(), null cb);
+	this.kyoto.rpc(cmd, args, this.useOpts(), null, cb);
 };
 
 API.prototype.sendKeyNumOrigXt = function(cmd, key, num, orig, xt, cb)
@@ -197,12 +195,19 @@ API.prototype.receiveKeyXt = function(cb, err, res)
 {
 	if(err) return cb(err);
 	cb(null, res.value, res.xt||null);
-}
+};
+
+API.prototype.receiveVoid = function(cb, err)
+{
+	if(err) return cb(err);
+	cb(null);
+};
 
 // }}}
 // {{{ --commands
 
-API.prototype.add = function(k,v,x,cb){this.sendKeyValueXt.call(this,'add',k,v,x,null,cb);};
+API.prototype.add = function(k,v,x,cb){
+	this.sendKeyValueXt.call(this, 'add', k, v, x, null, this.receiveVoid.bind(this,cb)); };
 
 API.prototype.append = function(k,v,x,cb){this.sendKeyValueXt.call(this,'append',k,v,x,null,cb);};
 
@@ -215,7 +220,7 @@ API.prototype.cas = function(k,o,n,x,cb){
 	this.kyoto.rpc('cas', args, this.useOpts(), null, cb); };
 
 API.prototype.clear = function(cb){
-	this.kyoto.rpc('clear', null, this.useOpts(), null, cb); };
+	this.kyoto.rpc('clear', null, this.useOpts(), null, this.receiveVoid.bind(this,cb)); };
 
 API.prototype.echo = function(o,cb){
 	this.kyoto.rpc('echo', o, null, null, cb); };
@@ -242,7 +247,7 @@ API.prototype.set = function(k,v,x,cb){
 	this.sendKeyValueXt.call(this, 'set', k, v, x, cb); };
 
 API.prototype.void = function(cb){
-	this.kyoto.rpc('void', null, null, null, cb); };
+	this.kyoto.rpc('void', null, null, null, this.receiveVoid.bind(this,cb)); };
 
 API.prototype.play_script = function(n,a,cb){
 	this.kyoto.rpc('play_script', {name:n}, null, a, function(e,r,a){
@@ -252,32 +257,17 @@ API.prototype.seize = function(k,cb){
 	this.kyoto.rpc('seize', {key:k}, this.useOpts(), null, this.receiveKeyXt.bind(this,cb)); };
 
 API.prototype.status = function(cb){
-	this.kyoto.rpc('status', null, this.useOpts(), null, cb); };
+	this.kyoto.rpc('status', null, this.useOpts(), null, function(err, data){
+      if(err) return cb(err);
+      cb(null, data.count, data.size, data); }); };
 
 API.prototype.synchronize = function(o,cb){
 	this.kyoto.rpc('synchronize', o, this.useOpts(), null, cb); }
 
 API.prototype.tune_replication = function(o,cb){
-	this.kyoto.rpc('tune_replication', o, null, null, cb);};
+	this.kyoto.rpc('tune_replication', o, null, null, this.receiveVoid.bind(this,cb));};
 
 // }}}
-
-var k = new API();
-
-var util = require('util');
-
-k.DB(0);
-
-require('async').parallel([
-	function(series){
-		k.get('japan',series);
-	},
-	function(series){
-		k.increment('foo',0,series);
-	}
-],function(err,res,arb){
-	console.log(util.inspect(arguments,false,3,true));
-});
 
 module.exports = {
 	Kyoto: Kyoto,
