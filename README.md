@@ -1,7 +1,7 @@
 kyoto.js
 ========
 
-[NodeJS]() native implementation of the [KyotoTycoon]() [RPC protocol]().
+[NodeJS](http://nodejs.org/) native implementation of the [KyotoTycoon](http://fallabs.com/kyototycoon/) [RPC protocol](http://fallabs.com/kyototycoon/spex.html#protocol).
 
 It let's you send procedures and receive results from a KyotoTycoon server.
 
@@ -13,7 +13,7 @@ Installation
 Quick start
 -----------
 
-First start a server with a prototype tree database using:
+First, start a server with a prototype tree database in memory using:
 
 	ktserver
 
