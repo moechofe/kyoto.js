@@ -20,11 +20,10 @@ First, start a server with a prototype tree database in memory using:
 Next, create a *test.js* script:
 
 ```js
-var k = new require('kyoto.js').API;
+var k = new (require('kyoto.js').API);
 k.set('japan', 'tokyo', function(err){
-	console.log("Record 'japan' was set");
 	k.get('japan', function(err, val){
-		console.log("Record 'japan' was retrieved", val);
+		console.log("Record 'japan' contain:", val);
 	});
 });
 ```
