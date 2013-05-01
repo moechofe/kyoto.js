@@ -19,13 +19,15 @@ First start a server with a prototype tree database using:
 
 Next, create a *test.js* script:
 
-	var k = new require('kyoto.js').API;
-	k.set('japan', 'tokyo', function(err){
-		console.log("Record 'japan' was set");
-		k.get('japan', function(err, val){
-			console.log("Record 'japan' was retrieved", val);
-		});
+```js
+var k = new require('kyoto.js').API;
+k.set('japan', 'tokyo', function(err){
+	console.log("Record 'japan' was set");
+	k.get('japan', function(err, val){
+		console.log("Record 'japan' was retrieved", val);
 	});
+});
+```
 
 Kyoto class
 ===========
